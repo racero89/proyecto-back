@@ -19,7 +19,6 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  -back;
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -29,10 +28,16 @@ exports.login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ msg: "Credenciales inválidas" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+    const token = jwt.sign(
+      { id: user._id, isAdmin: user.isAdmin },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      token,
+      user: { id: user._id, name: user.name, isAdmin: user.isAdmin },
     });
-    res.json({ token, user: { id: user._id, name: user.name } });
   } catch (error) {
     res.status(500).json({ msg: "Error de servidor" });
   }

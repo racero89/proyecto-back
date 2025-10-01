@@ -21,7 +21,6 @@ exports.marcarEntrada = async (req, res) => {
     await registro.save();
     res.json({ msg: "Entrada registrada correctamente", registro });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ msg: "Error registrando entrada" });
   }
 };
@@ -33,36 +32,31 @@ exports.registrarSalida = async (req, res) => {
 
   try {
     const registro = await Registro.findOne({ userId, fecha: fechaHoy });
-
-    if (!registro) {
+    if (!registro)
       return res.status(400).json({ msg: "No hay registro de entrada hoy" });
-    }
 
     const ultimo = registro.entradasSalidas
       .slice()
       .reverse()
       .find((es) => !es.salida);
-
-    if (!ultimo) {
+    if (!ultimo)
       return res
         .status(400)
         .json({ msg: "No hay entrada pendiente de salida" });
-    }
 
     ultimo.salida = horaActual;
-
     await registro.save();
     res.json({ msg: "Salida registrada correctamente", registro });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ msg: "Error registrando salida" });
   }
 };
 
 exports.obtenerRegistros = async (req, res) => {
-  const userId = req.user.id;
   try {
-    const registros = await Registro.find({ userId }).sort({ fecha: -1 });
+    const registros = await Registro.find({ userId: req.user.id }).sort({
+      fecha: -1,
+    });
     res.json(registros);
   } catch (error) {
     res.status(500).json({ msg: "Error al obtener registros" });
@@ -71,19 +65,11 @@ exports.obtenerRegistros = async (req, res) => {
 
 exports.obtenerTodosRegistros = async (req, res) => {
   try {
-    if (!req.user.isAdmin) {
-      return res
-        .status(403)
-        .json({ msg: "Acceso denegado: solo administradores" });
-    }
-
     const registros = await Registro.find()
-      .populate("userId", "nombre email")
+      .populate("userId", "name email")
       .sort({ fecha: -1 });
-
     res.json(registros);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ msg: "Error al obtener todos los registros" });
   }
 };

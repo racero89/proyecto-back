@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 
-const entradaSalidaSchema = new mongoose.Schema({
+const entradasSalidasSchema = new mongoose.Schema({
   entrada: { type: String, required: true },
-  salida: { type: String },
+  salida: { type: String, default: null },
 });
 
 const registroSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   fecha: { type: String, required: true },
-  entradasSalidas: [entradaSalidaSchema],
+  entradasSalidas: [entradasSalidasSchema],
 });
 
 module.exports = mongoose.model("Registro", registroSchema);
